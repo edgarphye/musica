@@ -97,7 +97,7 @@ class _ConvertPageState extends ConsumerState<ConvertPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Convierte FLAC, WAV, OGG y más a MP3 o AAC para que suenen en cualquier dispositivo.',
+            'Convierte FLAC, WAV, OGG y más a MP3, AAC/M4A o MP4 para que suenen en cualquier dispositivo.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: colors.onSurfaceVariant,
                 ),
@@ -392,6 +392,18 @@ class _ProfileCard extends StatelessWidget {
                     sub: 'Mejor calidad',
                     onTap: () => onProfileChanged(
                       const ConversionProfile(format: OutputFormat.m4a, bitrate: 192),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _segmentOption(
+                    context,
+                    selected: profile.format == OutputFormat.mp4,
+                    label: 'MP4',
+                    sub: 'Contenedor MP4',
+                    onTap: () => onProfileChanged(
+                      const ConversionProfile(format: OutputFormat.mp4, bitrate: 192),
                     ),
                   ),
                 ),

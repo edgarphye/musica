@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MusiConvert
+Comment=Conversor y reproductor de audio multiplataforma (MP3, M4A, MP4)
+Exec=/home/ephye/Documentos/musica/build/linux/x64/release/bundle/musica
+Icon=musica
+Terminal=false
+Categories=AudioVideo;Audio;Music;
+StartupWMClass=musica
+StartupNotify=true

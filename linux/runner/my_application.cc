@@ -14,6 +14,28 @@ struct _MyApplication {
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
+// Ruta absoluta del directorio donde vive el ejecutable.
+static gchar* executable_dir() {
+  g_autofree gchar* exe = g_file_read_link("/proc/self/exe", nullptr);
+  if (exe == nullptr) return nullptr;
+  return g_path_get_dirname(exe);
+}
+
+// Muestra el icono de la app en la ventana y la barra de tareas. El PNG se
+// lee del bundle de Flutter (data/flutter_assets/assets/icon.png).
+static void set_window_icon(GtkWindow* window) {
+  g_autofree gchar* exe_dir = executable_dir();
+  if (exe_dir == nullptr) return;
+  g_autofree gchar* icon_path =
+      g_build_filename(exe_dir, "data", "flutter_assets", "assets", "icon.png",
+                       nullptr);
+  if (!g_file_test(icon_path, G_FILE_TEST_EXISTS)) return;
+  GError* error = nullptr;
+  if (!gtk_window_set_icon_from_file(window, icon_path, &error)) {
+    g_clear_error(&error);
+  }
+}
+
 // Called when first Flutter frame received.
 static void first_frame_cb(MyApplication* self, FlView* view) {
   gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
@@ -53,6 +75,8 @@ static void my_application_activate(GApplication* application) {
   }
 
   gtk_window_set_default_size(window, 1280, 720);
+
+  set_window_icon(window);
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(

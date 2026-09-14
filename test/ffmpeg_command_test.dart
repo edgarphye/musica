@@ -72,5 +72,32 @@ void main() {
       expect(args, contains('-b:a'));
       expect(args[args.indexOf('-b:a') + 1], '320k');
     });
+
+    test('perfil MP4 genera los argumentos exactos', () {
+      final args = FfmpegEngine.buildCommandArgs(
+        input: '/origen/cancion.flac',
+        outputPath: '/destino/cancion.mp4',
+        profile: const ConversionProfile(format: OutputFormat.mp4),
+      );
+
+      expect(args, [
+        '-y',
+        '-i',
+        '/origen/cancion.flac',
+        '-map',
+        '0:a',
+        '-map_metadata',
+        '0',
+        '-c:a',
+        'aac',
+        '-b:a',
+        '192k',
+        '-f',
+        'mp4',
+        '-movflags',
+        '+faststart',
+        '/destino/cancion.mp4',
+      ]);
+    });
   });
 }

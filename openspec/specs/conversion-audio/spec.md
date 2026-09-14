@@ -6,9 +6,9 @@ Conversión en el dispositivo de archivos fuente (FLAC, WAV, OGG, etc.) a MP3 y 
 
 ## Requirements
 
-### Requirement: Perfiles de conversión MP3 y M4A/AAC
+### Requirement: Perfiles de conversión MP3, M4A/AAC y MP4
 
-El sistema SHALL ofrecer dos perfiles de salida: **MP3** (codec `libmp3lame`, 192 kbps, tags ID3v2.3) y **AAC/M4A** (codec `aac`, 192 kbps, contenedor MP4). El comando FFmpeg SHALL preservar metadatos y carátula del archivo original.
+El sistema SHALL ofrecer tres perfiles de salida: **MP3** (codec `libmp3lame`, 192 kbps, tags ID3v2.3), **AAC/M4A** (codec `aac`, 192 kbps, contenedor MP4) y **MP4** (codec `aac`, 192 kbps, contenedor MP4). El comando FFmpeg SHALL preservar metadatos y carátula del archivo original.
 
 #### Scenario: Convertir FLAC a MP3
 - **WHEN** el usuario convierte un `album.flac` con perfil MP3
@@ -17,6 +17,10 @@ El sistema SHALL ofrecer dos perfiles de salida: **MP3** (codec `libmp3lame`, 19
 #### Scenario: Convertir OGG a M4A
 - **WHEN** el usuario convierte una canción `cancion.ogg` con perfil M4A/AAC
 - **THEN** se genera `cancion.m4a` con códec AAC en contenedor MP4
+
+#### Scenario: Convertir FLAC a MP4
+- **WHEN** el usuario convierte una canción `cancion.flac` con perfil MP4
+- **THEN** se genera `cancion.mp4` con códec AAC en contenedor MP4
 
 ### Requirement: Cola de conversión en lote
 

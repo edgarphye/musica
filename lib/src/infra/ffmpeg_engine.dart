@@ -165,6 +165,7 @@ class FfmpegEngine {
           '1',
         ];
       case OutputFormat.m4a:
+      case OutputFormat.mp4:
         codec = [
           '-c:a',
           'aac',

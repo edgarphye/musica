@@ -1,6 +1,6 @@
 # MusiConvert
 
-Conversor y reproductor de audio **multiplataforma** que convierte música de una memoria USB (FLAC, WAV, OGG, OPUS, APE, etc.) a formatos compatibles con cualquier tablet, portátil o PC: **MP3** (libmp3lame 192 kbps) y **AAC / M4A** (aac, faststart).
+Conversor y reproductor de audio **multiplataforma** que convierte música de una memoria USB (FLAC, WAV, OGG, OPUS, APE, etc.) a formatos compatibles con cualquier tablet, portátil o PC: **MP3** (libmp3lame 192 kbps), **AAC / M4A** (aac, faststart) y **MP4**.
 
 - Conversión 100 % local con FFmpeg: **nada se sube a la nube**.
 - Conserva metadatos e información de la carátula (`-map_metadata 0`).
@@ -48,6 +48,22 @@ flutter build linux --release
 ```
 
 El bundle relocable queda en `build/linux/x64/release/bundle/` (ejecuta `./musica`).
+
+Para que la app aparezca en el grid de GNOME **MusiConvert** con su icono:
+
+```bash
+mkdir -p ~/.local/share/applications ~/.local/share/icons/hicolor/512x512/apps
+cp packaging/musica.desktop ~/.local/share/applications/
+cp assets/icon.png ~/.local/share/icons/hicolor/512x512/apps/musica.png
+```
+
+## Icono
+
+Icono propio de la app (cuadrado redondeado con degradado violeta, corchea doble y onda de audio) aplicado en las tres plataformas:
+
+- **Android**: `android/app/src/main/res/mipmap-*/ic_launcher.png` (48–192 px).
+- **Windows**: `windows/runner/resources/app_icon.ico` (16–256 px).
+- **Linux**: `assets/icon.png` (512 px) empaquetado como asset; el runner GTK lo carga para mostrarlo en la barra de tareas y la cabecera de la ventana.
 
 ## Integración continua
 

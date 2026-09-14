@@ -1,65 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../application/theme_controller.dart';
+import 'close_app.dart';
 import 'providers.dart';
+import 'pages/about_page.dart';
 import 'pages/browse_page.dart';
 import 'pages/convert_page.dart';
 import 'pages/recent_page.dart';
 import 'widgets/player_bar.dart';
 
-class MusicaApp extends StatelessWidget {
+class MusicaApp extends ConsumerWidget {
   const MusicaApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = ref.watch(themeControllerProvider);
     return MaterialApp(
       title: 'MusiConvert',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6750A4),
-          brightness: Brightness.light,
-        ),
-        scaffoldBackgroundColor: const Color(0xFFF7F5FB),
-        cardTheme: const CardThemeData(
-          elevation: 0,
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(18)),
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Color(0xFF6750A4)),
-          ),
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6750A4),
-          brightness: Brightness.dark,
-        ),
-        cardTheme: const CardThemeData(
-          elevation: 0,
-          color: Color(0xFF211F26),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(18)),
-          ),
-        ),
-      ),
+      theme: theme.build(),
       home: const HomeShell(),
     );
   }
@@ -75,7 +35,12 @@ class HomeShell extends ConsumerStatefulWidget {
 class _HomeShellState extends ConsumerState<HomeShell> {
   int _index = 0;
 
-  static const _pages = [BrowsePage(), ConvertPage(), RecentPage()];
+  static const _pages = [
+    BrowsePage(),
+    ConvertPage(),
+    RecentPage(),
+    AboutPage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +62,19 @@ class _HomeShellState extends ConsumerState<HomeShell> {
                     selectedIndex: _index,
                     onDestinationSelected: (i) => setState(() => _index = i),
                     labelType: NavigationRailLabelType.all,
+                    trailing: Expanded(
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: IconButton(
+                            tooltip: 'Cerrar la aplicación',
+                            onPressed: closeApplication,
+                            icon: const Icon(Icons.power_settings_new),
+                          ),
+                        ),
+                      ),
+                    ),
                     destinations: const [
                       NavigationRailDestination(
                         icon: Icon(Icons.library_music_outlined),
@@ -112,6 +90,11 @@ class _HomeShellState extends ConsumerState<HomeShell> {
                         icon: Icon(Icons.history_outlined),
                         selectedIcon: Icon(Icons.history),
                         label: Text('Recientes'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.info_outline),
+                        selectedIcon: Icon(Icons.info),
+                        label: Text('Acerca de'),
                       ),
                     ],
                   ),
@@ -151,6 +134,11 @@ class _HomeShellState extends ConsumerState<HomeShell> {
                   icon: Icon(Icons.history_outlined),
                   selectedIcon: Icon(Icons.history),
                   label: 'Recientes',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.info_outline),
+                  selectedIcon: Icon(Icons.info),
+                  label: 'Acerca de',
                 ),
               ],
             ),
