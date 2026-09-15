@@ -51,13 +51,12 @@ class ConversionState {
 
 class ConversionController {
   ConversionController({
-    required FilesystemGateway filesystem,
-    required FfmpegEngine engine,
-  }) : _filesystem = filesystem,
-       _engine = engine;
+    required this.filesystem,
+    required this.engine,
+  });
 
-  final FilesystemGateway _filesystem;
-  final FfmpegEngine _engine;
+  final FilesystemGateway filesystem;
+  final FfmpegEngine engine;
 
   ConversionProfile profile = const ConversionProfile(format: OutputFormat.mp3);
   OverwritePolicy overwrite = const OverwriteSkip();
@@ -104,7 +103,7 @@ class ConversionController {
 
     var adjusted = <ConversionJob>[];
     for (final job in jobs) {
-      final exists = await _filesystem.outputExists(
+      final exists = await filesystem.outputExists(
         destination,
         job.outputRelativePath,
       );
@@ -121,7 +120,7 @@ class ConversionController {
       } else if (overwritePolicy is OverwriteRename) {
         var n = 1;
         var candidate = _renameSuffix(job.file, profile, n);
-        while (await _filesystem.outputExists(
+        while (await filesystem.outputExists(
           destination,
           candidate,
         )) {
@@ -171,18 +170,18 @@ class ConversionController {
 
       String? scratchPath;
       try {
-        scratchPath = await _filesystem.outputPathFor(
+        scratchPath = await filesystem.outputPathFor(
           _destination!,
           job.outputRelativePath,
         );
 
-        final sub = _engine.statistics.listen((p) {
+        final sub = engine.statistics.listen((p) {
           job.progress = p.fraction;
           _emit();
         });
 
-        final input = _filesystem.inputArgument(job.file);
-        final result = await _engine.convert(
+        final input = filesystem.inputArgument(job.file);
+        final result = await engine.convert(
           input: input,
           outputPath: scratchPath,
           profile: profile,
@@ -193,9 +192,9 @@ class ConversionController {
         if (result.cancelled) {
           job.status = JobStatus.cancelled;
           job.message = 'Cancelado';
-          await _filesystem.deleteFile(scratchPath);
+          await filesystem.deleteFile(scratchPath);
         } else if (result.success) {
-          await _filesystem.commitOutput(
+          await filesystem.commitOutput(
             _destination!,
             job.outputRelativePath,
             scratchPath,
@@ -205,14 +204,14 @@ class ConversionController {
         } else {
           job.status = JobStatus.error;
           job.message = result.error ?? 'Error desconocido';
-          await _filesystem.deleteFile(scratchPath);
+          await filesystem.deleteFile(scratchPath);
         }
         _emit();
       } catch (e) {
         job.status = JobStatus.error;
         job.message = e.toString();
         if (scratchPath != null) {
-          await _filesystem.deleteFile(scratchPath);
+          await filesystem.deleteFile(scratchPath);
         }
         _emit();
       }
@@ -231,7 +230,7 @@ class ConversionController {
 
   Future<void> cancel() async {
     _cancelling = true;
-    await _engine.cancelActive();
+    await engine.cancelActive();
     for (final job in _state.jobs) {
       if (job.status == JobStatus.pending) {
         job.status = JobStatus.cancelled;
@@ -244,7 +243,7 @@ class ConversionController {
   Future<void> cancelJob(String id) async {
     final job = _state.jobs.firstWhere((j) => j.id == id);
     if (job.status == JobStatus.converting) {
-      await _engine.cancelActive();
+      await engine.cancelActive();
       job.status = JobStatus.cancelled;
       job.message = 'Cancelado por el usuario';
       _emit();

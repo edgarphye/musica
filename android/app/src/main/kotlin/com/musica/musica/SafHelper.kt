@@ -97,7 +97,7 @@ class SafHelper(private val activity: Activity) {
     private fun listChildren(treeUri: Uri, parentRelative: String): List<Map<String, Any?>> {
         val out = mutableListOf<Map<String, Any?>>()
         val rootId = treeRootDocId(treeUri)
-        val queryUri = buildChildDocumentsUriUsingTree(treeUri, rootId)
+        val queryUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, rootId)
 
         // Recorremos la ruta relativa para llegar al directorio padre.
         var currentChildQuery = queryUri
@@ -128,9 +128,8 @@ class SafHelper(private val activity: Activity) {
                 val docId = it.getString(it.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_DOCUMENT_ID))
                 val name = it.getString(it.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_DISPLAY_NAME))
                 val mime = it.getString(it.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_MIME_TYPE))
-                val isDir = it.getInt(it.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_FLAGS)) and
-                    DocumentsContract.Document.FLAG_DIRECTORY != 0
-                val childUri = buildDocumentUriUsingTree(treeUri, docId)
+                val isDir = mime == DocumentsContract.Document.MIME_TYPE_DIR
+                val childUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, docId)
                 out.add(
                     mapOf(
                         "name" to name,
@@ -157,7 +156,7 @@ class SafHelper(private val activity: Activity) {
                 val display = it.getString(it.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_DISPLAY_NAME))
                 if (display == name) {
                     val docId = it.getString(it.getColumnIndexOrThrow(DocumentsContract.Document.COLUMN_DOCUMENT_ID))
-                    return buildDocumentUriUsingTree(treeUri, docId)
+                    return DocumentsContract.buildDocumentUriUsingTree(treeUri, docId)
                 }
             }
         }

@@ -1,5 +1,6 @@
 #include "my_application.h"
 
+#include <dlfcn.h>
 #include <flutter_linux/flutter_linux.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
@@ -13,6 +14,25 @@ struct _MyApplication {
 };
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
+
+// Carga las librerías FFmpegKit en el namespace global antes de registrar los
+// plugins. El plugin las abre con dlopen() desde su propio .so, cuyo RUNPATH
+// apunta a un directorio de build inexistente en runtime, y las libs del bundle
+// no tienen RUNPATH propio (no es transitivo). Cargarlas desde el ejecutable
+// (cuyo RUNPATH es $ORIGIN/lib) en orden de dependencias garantiza que la
+// conversión funcione en el bundle distribuible.
+static void preload_ffmpegkit() {
+  const char* const libs[] = {
+      "libavutil.so",    "libswresample.so", "libswscale.so",
+      "libavcodec.so",   "libavformat.so",   "libavfilter.so",
+      "libavdevice.so",  "libffmpegkit.so",
+  };
+  for (const char* lib : libs) {
+    if (dlopen(lib, RTLD_NOW | RTLD_GLOBAL) == nullptr) {
+      g_warning("No se pudo precargar %s: %s", lib, dlerror());
+    }
+  }
+}
 
 // Ruta absoluta del directorio donde vive el ejecutable.
 static gchar* executable_dir() {
@@ -96,6 +116,8 @@ static void my_application_activate(GApplication* application) {
   g_signal_connect_swapped(view, "first-frame", G_CALLBACK(first_frame_cb),
                            self);
   gtk_widget_realize(GTK_WIDGET(view));
+
+  preload_ffmpegkit();
 
   fl_register_plugins(FL_PLUGIN_REGISTRY(view));
 
