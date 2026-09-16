@@ -78,8 +78,19 @@ jobs:
           Export-PfxCertificate -Cert $cert -FilePath $pfx -Password (ConvertTo-SecureString $pass -AsPlainText -Force) | Out-Null
 
           $msixDir = New-Item -ItemType Directory -Force -Path (Join-Path $env:GITHUB_WORKSPACE 'build/msix')
-          & $env:makeappx pack /d windows/packaging /p build/msix/musica-1.0.0.msix /o
-          & $env:signtool sign /f $pfx /p $pass /fd SHA256 /a build/msix/musica-1.0.0.msix
+          $pfx = Join-Path $env:GITHUB_WORKSPACE 'windows/packaging/musica-dev.pfx'
+          $pass = ConvertTo-SecureString ([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes((New-Guid))) -AsPlainText -Force)
+          Export-PfxCertificate -Cert $cert -FilePath $pfx -Password $pass | Out-Null
+
+          # El MSIX debe contener exe+DLLs+data: staging fusiona Release con manifest+assets
+          $stage = Join-Path $env:GITHUB_WORKSPACE 'build/msix/stage'
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+          Copy-Item -Recurse -Force (Join-Path $env:GITHUB_WORKSPACE 'windows/packaging/assets') $stage
+          Copy-Item -Force (Join-Path $env:GITHUB_WORKSPACE 'windows/packaging/AppxManifest.xml') $stage
+          Copy-Item -Recurse -Force (Join-Path $env:GITHUB_WORKSPACE 'build/windows/x64/runner/Release/*') $stage
+
+          & $env:makeappx pack /d $stage /p windows/packaging/musica-1.0.0.msix /o
+          & $env:signtool sign /f $pfx /p $pass /fd SHA256 /a windows/packaging/musica-1.0.0.msix
           Remove-Item $pfx -Force
 
       - name: Upload MSIX signed bundle
