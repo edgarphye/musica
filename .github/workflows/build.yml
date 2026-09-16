@@ -93,7 +93,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: musica-windows-msix
-          path: build/msix/musica-1.0.0.msix
+          path: windows/packaging/musica-1.0.0.msix
+          if-no-files-found: error
 
       - name: Upload Windows exe bundle
         uses: actions/upload-artifact@v4
