@@ -75,14 +75,10 @@ jobs:
             -NotAfter (Get-Date).AddYears(2) -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3")
           $pfx = Join-Path $env:GITHUB_WORKSPACE 'windows/packaging/musica-dev.pfx'
           $pass = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes((New-Guid)))
-          Export-PfxCertificate -Cert $cert -FilePath $pfx -Password (ConvertTo-SecureString $pass -AsPlainText -Force) | Out-Null
+          Export-PfxCertificate -Cert $cert -FilePath $pfx `
+            -Password (ConvertTo-SecureString $pass -AsPlainText -Force) | Out-Null
 
-          $msixDir = New-Item -ItemType Directory -Force -Path (Join-Path $env:GITHUB_WORKSPACE 'build/msix')
-          $pfx = Join-Path $env:GITHUB_WORKSPACE 'windows/packaging/musica-dev.pfx'
-          $pass = ConvertTo-SecureString ([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes((New-Guid))) -AsPlainText -Force)
-          Export-PfxCertificate -Cert $cert -FilePath $pfx -Password $pass | Out-Null
-
-          # El MSIX debe contener exe+DLLs+data: staging fusiona Release con manifest+assets
+          # Staging MSIX: exe+DLLs+data del runner Release + manifest + assets
           $stage = Join-Path $env:GITHUB_WORKSPACE 'build/msix/stage'
           New-Item -ItemType Directory -Force -Path $stage | Out-Null
           Copy-Item -Recurse -Force (Join-Path $env:GITHUB_WORKSPACE 'windows/packaging/assets') $stage
