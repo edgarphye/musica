@@ -53,3 +53,15 @@ El sistema SHALL ofrecer política de sobrescritura: reemplazar el destino si ya
 #### Scenario: Destino ya existe con política saltar
 - **WHEN** un archivo convertido ya existe en el destino y la política es "saltar"
 - **THEN** el sistema no lo re-convierte y lo marca como "omitido"
+
+## Verificación E2E (Android, 2026-09-15, publicada)
+
+El sistema SHALL quedar verificado en emulador Android (API 36, x86_64, KVM) con el bundle release `app-release.apk` y archivo real `tono.wav` (441 044 B, tono 440 Hz / 5 s), usando el flujo SAF sobre el árbol `Download` con `takePersistableUriPermission`.
+
+#### Scenario: Carga de FFmpegKit en runtime Android
+- **WHEN** la app Android inicia con el preload corregido
+- **THEN** logcat NO muestra `library_unavailable`; aparece `FFmpegKitFlutterPlugin ... initialised` y la conversión usa el árbol SAF con persistencia (`PUBLISHED ANR` manejado con "Wait")
+
+#### Scenario: Conversión real FLAC/WAV a MP3 en Android
+- **WHEN** el usuario convierte `tono.wav` con perfil MP3
+- **THEN** se genera `tono_copy.mp3` (57 370 B) con 205 frames MP3 con sync `0xFFE` válidos, duración ≈ 5,36 s (refleja el tono de 5 s), mediante `FFmpegKit.startAsync` completada en ~105 ms
